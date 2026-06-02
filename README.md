@@ -1,9 +1,13 @@
-# Top 30 Processes — GoWide × ANZ Salesforce Pilot
+# Top 30 Processes — Salesforce Process Intelligence
 
 Interactive reference site: a ranked list of the 30 best candidate processes for
 Process Intelligence pilots — for each one, how it flows, where the data lives,
 what PI reveals, the metrics, the engagement profile, and who buys / how it ties
 back to Salesforce licensing.
+
+Styled with the **Salesforce 2026 design system** (Salesforce Sans + Avant Garde
+fonts in `assets/fonts/`, Electric/Cloud Blue palette, evening-gradient hero) to
+match the `deck-apromore` narrative decks.
 
 **Live:** https://scottt1234.github.io/top-30-processes/
 

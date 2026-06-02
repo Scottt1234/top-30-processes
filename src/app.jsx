@@ -9,15 +9,15 @@ const APP_TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "expandMode": "sections",
   "density": "comfy",
   "heroTheme": "dark",
-  "accent": "#F26522"
+  "accent": "#022AC0"
 }/*EDITMODE-END*/;
 
 // Accent → deep-shade mapping (for hover / pressed states)
 const ACCENT_DEEP = {
-  "#F26522": "#C84F12",   // GoWide orange
-  "#2B2F8C": "#1A1E5F",   // deep indigo
-  "#1F8A7A": "#14635A",   // teal
-  "#0F1014": "#000000",   // charcoal
+  "#022AC0": "#001E5B",   // Electric Blue 30 → Navy 15
+  "#066AFE": "#022AC0",   // Electric Blue 50 → 30
+  "#06A59A": "#023434",   // Teal 60 → 20
+  "#730394": "#481A54",   // Violet 30 → 20
 };
 
 // ── Row ──────────────────────────────────────────────────────
@@ -221,7 +221,7 @@ function App() {
   }, [t.heroTheme]);
 
   useE(() => {
-    const accent = t.accent || "#F26522";
+    const accent = t.accent || "#022AC0";
     const accentDeep = ACCENT_DEEP[accent] || accent;
     document.documentElement.style.setProperty("--gw-orange", accent);
     document.documentElement.style.setProperty("--gw-orange-deep", accentDeep);
@@ -355,10 +355,10 @@ function App() {
             label="Color"
             value={t.accent}
             onChange={v => setTweak("accent", v)}
-            options={["#F26522", "#2B2F8C", "#1F8A7A", "#0F1014"]}
+            options={["#022AC0", "#066AFE", "#06A59A", "#730394"]}
           />
           <div style={{ fontSize: 11, color: "var(--muted)", lineHeight: 1.5, marginTop: -4 }}>
-            <strong>Orange</strong> is GoWide's signature.
+            <strong>Electric Blue</strong> is the Salesforce default.
           </div>
         </TweakSection>
         <TweakSection label="Expanded view">

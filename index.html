@@ -1,96 +1,116 @@
 <!DOCTYPE html>
-<html lang="en" data-deck-name="ANZ Salesforce Pilot — Top 30 (GoWide)">
+<html lang="en" data-deck-name="Salesforce × Apromore — Top 30 Processes">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Top 30 Processes — GoWide × ANZ Salesforce Pilot</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Top 30 Processes — Salesforce Process Intelligence</title>
 
 <style>
+  /* ── Salesforce brand fonts (2026 system) ───────────────── */
+  @font-face { font-family:'Salesforce Sans'; font-weight:300; font-style:normal; font-display:swap;
+    src:url('assets/fonts/SalesforceSans-Light.woff2') format('woff2'), url('assets/fonts/SalesforceSans-Light.woff') format('woff'); }
+  @font-face { font-family:'Salesforce Sans'; font-weight:400; font-style:normal; font-display:swap;
+    src:url('assets/fonts/SalesforceSans-Regular.woff2') format('woff2'), url('assets/fonts/SalesforceSans-Regular.woff') format('woff'); }
+  @font-face { font-family:'Salesforce Sans'; font-weight:400; font-style:italic; font-display:swap;
+    src:url('assets/fonts/SalesforceSans-Italic.woff2') format('woff2'), url('assets/fonts/SalesforceSans-Italic.woff') format('woff'); }
+  @font-face { font-family:'Salesforce Sans'; font-weight:600; font-style:normal; font-display:swap;
+    src:url('assets/fonts/SalesforceSans-Semibold.woff2') format('woff2'), url('assets/fonts/SalesforceSans-Semibold.woff') format('woff'); }
+  @font-face { font-family:'Salesforce Sans'; font-weight:700; font-style:normal; font-display:swap;
+    src:url('assets/fonts/SalesforceSans-Bold.woff2') format('woff2'), url('assets/fonts/SalesforceSans-Bold.woff') format('woff'); }
+  @font-face { font-family:'Avant Garde For Salesforce'; font-weight:600; font-style:normal; font-display:swap;
+    src:url('assets/fonts/AvantGardeForSalesforceW05-Dm.woff2') format('woff2'), url('assets/fonts/AvantGardeForSalesforceW05-Dm.woff') format('woff'); }
+
   :root {
-    /* ── GoWide palette ─────────────────────────────────── */
+    /* ── Salesforce 2026 Digital Palette (primary blues) ─────── */
+    --sf-navy:    #001E5B;   /* Electric Blue 15 */
+    --sf-blue:    #022AC0;   /* Electric Blue 30 — headings, accent */
+    --sf-blue-m:  #066AFE;   /* Electric Blue 50 */
+    --sf-blue-l:  #00B3FF;   /* Cloud Blue 68 — highlights on dark */
+    --cloud-80:   #90D0FE;   /* Cloud Blue 80 */
+    --cloud-95:   #EAF5FE;   /* Cloud Blue 95 — section bg */
+    --grad-evening: linear-gradient(165deg, #001E5B 0%, #022AC0 42%, #066AFE 78%, #00B3FF 100%);
+
     /* Paper & ink */
-    --paper:        #FAFAF7;
-    --paper-warm:   #F4F1EA;
-    --paper-cool:   #F1F2F4;
+    --paper:        #FFFFFF;
+    --paper-warm:   #EAF5FE;   /* cloud-95 — expanded-row + soft panels */
+    --paper-cool:   #F3F6FB;
     --card:         #FFFFFF;
-    --ink:          #0E0E10;
-    --ink-soft:     #1C1C20;
-    --body:         #2A2A2D;
-    --muted:        #6B6B70;
-    --rule:         #E5E2DA;
-    --rule-strong:  #D4D0C5;
+    --ink:          #001E5B;   /* navy — headings, numbers */
+    --ink-soft:     #022AC0;
+    --body:         #181818;
+    --muted:        #5A5C61;
+    --rule:         #E5E5E5;
+    --rule-strong:  #D6DAE0;
 
-    /* GoWide signature */
-    --gw-orange:        #F26522;   /* primary accent — arrows, CTAs, marks */
-    --gw-orange-soft:   #FBE4D5;
-    --gw-orange-deep:   #C84F12;
-    --gw-charcoal:      #0F1014;   /* deep brand band */
-    --gw-charcoal-2:    #1A1B22;
-    --gw-sand:          #EDE7D9;
+    /* Primary accent (was GoWide orange) — Salesforce Electric Blue.
+       Kept under the legacy var names so components re-theme with no edits.
+       app.jsx also sets these at runtime from its accent default. */
+    --gw-orange:        #022AC0;
+    --gw-orange-soft:   #EAF5FE;
+    --gw-orange-deep:   #001E5B;
+    --gw-charcoal:      #001E5B;   /* navy — dark insight/licence cards, footer */
+    --gw-charcoal-2:    #022AC0;
+    --gw-sand:          #EAF5FE;
 
-    /* Section / family accents (re-mapped from the SF palette to GoWide-harmonious tones) */
-    --c-service:        #1F8A7A;    /* Service / Field / Data — confident teal */
-    --c-service-95:     #E2F3EF;
-    --c-service-20:     #0A2D27;
+    /* Family / section accents → Salesforce secondary palette (max-20% pops) */
+    --c-service:        #06A59A;   /* Service / Field / Data — Teal 60 */
+    --c-service-95:     #DEF9F3;
+    --c-service-20:     #023434;
 
-    --c-sales:          #F26522;    /* Sales / Agentforce — GoWide orange */
-    --c-sales-95:       #FBE4D5;
-    --c-sales-20:       #4A1D08;
+    --c-sales:          #022AC0;   /* Sales / Agentforce — Electric Blue 30 */
+    --c-sales-95:       #EAF5FE;
+    --c-sales-20:       #001E5B;
 
-    --c-revenue:        #2B2F8C;    /* Revenue / Finance — deep indigo */
-    --c-revenue-95:     #E6E7F4;
-    --c-revenue-20:     #0E1140;
+    --c-revenue:        #730394;   /* Revenue / Finance — Violet 30 */
+    --c-revenue-95:     #F9F0FF;
+    --c-revenue-20:     #481A54;
 
-    --c-marketing:      #B83B5E;    /* Marketing / Commerce — rose */
-    --c-marketing-95:   #F8E2E8;
-    --c-marketing-20:   #4A0F22;
+    --c-marketing:      #B60554;   /* Marketing / Commerce — Pink 40 */
+    --c-marketing-95:   #FEF0F3;
+    --c-marketing-20:   #61022A;
 
-    --c-engagement:     #B47218;    /* Engagement — amber */
-    --c-engagement-95:  #F6EAD0;
-    --c-engagement-20:  #3F2705;
+    --c-engagement:     #E4A201;   /* Engagement — Yellow 70 */
+    --c-engagement-95:  #FBF3E0;
+    --c-engagement-20:  #4F2100;
 
-    --c-buyers:         #1F8A7A;
-    --c-buyers-95:      #E2F3EF;
+    --c-buyers:         #06A59A;
+    --c-buyers-95:      #DEF9F3;
 
-    /* Typography */
-    --font-display: "Space Grotesk", "Geist", system-ui, -apple-system, sans-serif;
-    --font-body:    "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
-    --font-mono:    "Geist Mono", "JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace;
+    /* Typography — Salesforce system. --font-mono mapped to Salesforce Sans
+       so the old "mono" labels render as proper SF eyebrows. */
+    --font-display: 'Avant Garde For Salesforce', 'Salesforce Sans', system-ui, -apple-system, sans-serif;
+    --font-body:    'Salesforce Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono:    'Salesforce Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
-    /* Geometry — GoWide tends square-ish, not pillowy */
     --radius-sm:  4px;
     --radius-md:  8px;
-    --radius-lg:  14px;
-    --radius-xl:  18px;
+    --radius-lg:  12px;
+    --radius-xl:  16px;
 
-    --shadow-card: 0 1px 0 rgba(14,14,16,0.04), 0 1px 2px rgba(14,14,16,0.04), 0 12px 32px -16px rgba(14,14,16,0.10);
-    --shadow-lift: 0 2px 4px rgba(14,14,16,0.06), 0 24px 56px -20px rgba(14,14,16,0.18);
+    --shadow-card: 0 2px 8px -2px rgba(0,30,91,0.08), 0 8px 24px -10px rgba(0,30,91,0.14);
+    --shadow-lift: 0 2px 4px rgba(0,30,91,0.08), 0 24px 56px -20px rgba(0,30,91,0.20);
   }
 
-  /* DARK hero variant — toggleable via Tweaks */
+  /* Hero theme tokens (toggleable via Tweaks) */
   :root[data-hero="dark"] {
-    --hero-bg:        var(--gw-charcoal);
-    --hero-bg-2:      var(--gw-charcoal-2);
+    --hero-bg:        var(--grad-evening);
     --hero-ink:       #FFFFFF;
-    --hero-ink-soft:  rgba(255,255,255,0.78);
-    --hero-rule:      rgba(255,255,255,0.10);
-    --hero-chip-bg:   rgba(255,255,255,0.06);
-    --hero-chip-bord: rgba(255,255,255,0.14);
-    --hero-glow:      rgba(242,101,34,0.35);
+    --hero-ink-soft:  rgba(255,255,255,0.80);
+    --hero-rule:      rgba(255,255,255,0.18);
+    --hero-chip-bg:   rgba(255,255,255,0.08);
+    --hero-chip-bord: rgba(255,255,255,0.24);
+    --hero-glow:      rgba(0,179,255,0.30);
+    --hero-accent:    var(--sf-blue-l);
   }
   :root[data-hero="light"] {
-    --hero-bg:        var(--paper-warm);
-    --hero-bg-2:      var(--paper);
-    --hero-ink:       var(--ink);
+    --hero-bg:        var(--cloud-95);
+    --hero-ink:       var(--sf-navy);
     --hero-ink-soft:  var(--muted);
     --hero-rule:      var(--rule-strong);
-    --hero-chip-bg:   rgba(14,14,16,0.04);
-    --hero-chip-bord: rgba(14,14,16,0.10);
-    --hero-glow:      rgba(242,101,34,0.18);
+    --hero-chip-bg:   rgba(2,42,192,0.04);
+    --hero-chip-bord: rgba(2,42,192,0.18);
+    --hero-glow:      rgba(0,179,255,0.14);
+    --hero-accent:    var(--sf-blue);
   }
 
   *, *::before, *::after { box-sizing: border-box; }
@@ -108,416 +128,251 @@
     font-family: var(--font-display);
     color: var(--ink);
     margin: 0;
-    letter-spacing: -0.018em;
+    letter-spacing: -0.012em;
     font-weight: 600;
   }
   button { font-family: inherit; }
-  ::selection { background: var(--gw-orange); color: #fff; }
+  ::selection { background: var(--cloud-80); color: var(--sf-navy); }
 
-  /* ── Top nav bar (GoWide-style minimal) ────────────────── */
-  .gw-nav {
+  /* ── Header carries one continuous evening gradient behind nav + hero ── */
+  header.gw-head {
     background: var(--hero-bg);
     color: var(--hero-ink);
-    position: relative;
-    z-index: 2;
   }
+
+  /* ── Top nav bar ───────────────────────────────────────── */
+  .gw-nav { background: transparent; color: var(--hero-ink); position: relative; z-index: 2; }
   .gw-nav-inner {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 20px 28px 8px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
+    max-width: 1280px; margin: 0 auto;
+    padding: 22px 28px 6px;
+    display: flex; align-items: center; justify-content: flex-start;
   }
   .gw-logo {
     font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 22px;
-    letter-spacing: -0.04em;
+    font-weight: 600;
+    font-size: 21px;
+    letter-spacing: -0.01em;
     color: var(--hero-ink);
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    line-height: 1;
+    display: inline-flex; align-items: center; gap: 9px; line-height: 1;
   }
-  .gw-logo .o { color: var(--gw-orange); }
-  .gw-logo .slash {
-    color: var(--gw-orange);
-    font-weight: 400;
-    margin: 0 1px 0 2px;
-    font-size: 20px;
-  }
-  .gw-nav-meta {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.04em;
-    color: var(--hero-ink-soft);
-    text-transform: uppercase;
-  }
-  .gw-nav-meta .sep {
-    width: 1px;
-    height: 12px;
-    background: var(--hero-rule);
-  }
-  @media (max-width: 720px) {
-    .gw-nav-meta .hide-sm { display: none; }
+  .gw-logo .cloud {
+    width: 26px; height: 18px; display: inline-block; flex-shrink: 0;
   }
 
-  /* ── Hero ───────────────────────────────────────────── */
+  /* ── Hero ──────────────────────────────────────────────── */
   .gw-hero {
-    background: var(--hero-bg);
+    background: transparent;
     color: var(--hero-ink);
-    padding: 44px 28px 44px;
+    padding: 40px 28px 46px;
     position: relative;
     overflow: hidden;
   }
   .gw-hero::before {
     content: "";
-    position: absolute;
-    inset: 0;
+    position: absolute; inset: 0;
     background:
-      radial-gradient(50% 60% at 88% 10%, var(--hero-glow) 0%, transparent 60%),
-      radial-gradient(40% 80% at 4% 100%, rgba(242,101,34,0.12) 0%, transparent 55%);
+      radial-gradient(55% 60% at 90% 6%, var(--hero-glow) 0%, transparent 60%),
+      radial-gradient(40% 80% at 2% 100%, rgba(0,179,255,0.12) 0%, transparent 55%);
     pointer-events: none;
   }
-  .gw-hero-inner {
-    max-width: 1280px;
-    margin: 0 auto;
-    position: relative;
-    z-index: 1;
-  }
+  .gw-hero-inner { max-width: 1280px; margin: 0 auto; position: relative; z-index: 1; }
+
   .gw-cobrand {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
+    display: inline-flex; align-items: center; gap: 10px;
     background: var(--hero-chip-bg);
     color: var(--hero-ink);
     border: 1px solid var(--hero-chip-bord);
-    padding: 6px 14px 6px 10px;
+    padding: 6px 16px 6px 12px;
     border-radius: 999px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-bottom: 28px;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    margin-bottom: 26px;
   }
   .gw-cobrand .dot {
     width: 6px; height: 6px; border-radius: 50%;
-    background: var(--gw-orange);
-    box-shadow: 0 0 0 4px rgba(242,101,34,0.18);
+    background: var(--sf-blue-l);
+    box-shadow: 0 0 0 4px rgba(0,179,255,0.18);
   }
-  .gw-cobrand .sep { opacity: 0.5; }
+  .gw-cobrand .sep { opacity: 0.5; font-weight: 400; }
 
   .gw-numeral {
-    position: absolute;
-    right: -40px;
-    top: -120px;
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 520px;
-    line-height: 0.78;
-    letter-spacing: -0.05em;
-    color: var(--hero-ink);
-    opacity: 0.05;
-    pointer-events: none;
-    user-select: none;
-    z-index: 0;
+    position: absolute; right: -40px; top: -120px;
+    font-family: var(--font-display); font-weight: 600;
+    font-size: 520px; line-height: 0.78; letter-spacing: -0.05em;
+    color: #FFFFFF; opacity: 0.06;
+    pointer-events: none; user-select: none; z-index: 0;
   }
-  :root[data-hero="light"] .gw-numeral { opacity: 0.045; color: var(--ink); }
+  :root[data-hero="light"] .gw-numeral { color: var(--sf-blue); opacity: 0.05; }
 
-  .gw-hero-top {
-    margin-bottom: 32px;
-  }
-  .gw-hero-text { max-width: 880px; }
+  .gw-hero-top { margin-bottom: 26px; }
+  .gw-hero-text { max-width: 900px; }
   .gw-hero h1 {
     color: var(--hero-ink);
     font-family: var(--font-display);
-    font-size: clamp(40px, 5.4vw, 64px);
-    line-height: 1.02;
-    letter-spacing: -0.03em;
+    font-size: clamp(40px, 5.4vw, 62px);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
     margin-bottom: 18px;
     text-wrap: balance;
     font-weight: 600;
   }
-  .gw-hero h1 .accent {
-    color: var(--gw-orange);
-    font-style: normal;
-  }
-  .gw-hero h1 .underline {
-    position: relative;
-    white-space: nowrap;
-  }
-  .gw-hero h1 .nowrap {
-    white-space: nowrap;
-  }
-  /* When the headline would overflow on narrow viewports, allow the second line to wrap */
-  @media (max-width: 720px) {
-    .gw-hero h1 .nowrap { white-space: normal; }
-  }
-  .gw-hero h1 .underline::after {
-    content: "";
-    position: absolute;
-    left: 0; right: 0; bottom: 0.06em;
-    height: 0.12em;
-    background: var(--gw-orange);
-    z-index: -1;
-    opacity: 0.45;
-  }
+  .gw-hero h1 .accent { color: var(--hero-accent); font-style: normal; }
+  .gw-hero h1 .nowrap { white-space: nowrap; }
+  @media (max-width: 720px) { .gw-hero h1 .nowrap { white-space: normal; } }
   .gw-hero .sub {
-    max-width: 640px;
+    max-width: 660px;
     color: var(--hero-ink-soft);
-    font-size: 16px;
-    line-height: 1.55;
-    margin: 0;
+    font-size: 16px; line-height: 1.6; margin: 0;
   }
+
+  /* Hero KPI strip */
   .gw-hero-kpis {
-    display: grid;
-    grid-template-columns: repeat(3, auto);
-    gap: 0;
-    padding-bottom: 4px;
+    display: grid; grid-template-columns: repeat(3, auto);
+    gap: 0; margin-top: 28px;
     border: 1px solid var(--hero-rule);
     border-radius: var(--radius-md);
     overflow: hidden;
     background: var(--hero-chip-bg);
+    width: fit-content;
   }
-  .gw-hero-kpis .kpi {
-    padding: 18px 22px 16px;
-    text-align: left;
-    border-right: 1px solid var(--hero-rule);
-    min-width: 100px;
-  }
+  .gw-hero-kpis .kpi { padding: 16px 26px 14px; text-align: left; border-right: 1px solid var(--hero-rule); min-width: 120px; }
   .gw-hero-kpis .kpi:last-child { border-right: none; }
   .gw-hero-kpis .kpi-v {
-    font-family: var(--font-display);
-    font-size: 32px;
-    line-height: 1;
-    color: var(--hero-ink);
-    letter-spacing: -0.03em;
-    font-weight: 600;
+    font-family: var(--font-display); font-size: 32px; line-height: 1;
+    color: var(--hero-ink); letter-spacing: -0.02em; font-weight: 600;
   }
-  .gw-hero-kpis .kpi-v .accent { color: var(--gw-orange); }
+  .gw-hero-kpis .kpi-v .accent { color: var(--hero-accent); }
   .gw-hero-kpis .kpi-l {
-    margin-top: 8px;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--hero-ink-soft);
-    letter-spacing: 0.10em;
-    text-transform: uppercase;
+    margin-top: 8px; font-size: 10px; font-weight: 700;
+    color: var(--hero-ink-soft); letter-spacing: 0.12em; text-transform: uppercase;
   }
-  @media (max-width: 880px) {
-    .gw-numeral { font-size: 320px; right: -20px; top: -50px; }
-  }
+  @media (max-width: 880px) { .gw-numeral { font-size: 320px; right: -20px; top: -50px; } }
 
   /* hero rule */
   .gw-hero-rule {
     height: 1px;
-    background: linear-gradient(90deg, var(--gw-orange) 0%, var(--gw-orange) 80px, var(--hero-rule) 80px, var(--hero-rule) 100%);
-    margin: 28px 0 24px;
-    opacity: 0.85;
+    background: linear-gradient(90deg, var(--hero-accent) 0%, var(--hero-accent) 80px, var(--hero-rule) 80px, var(--hero-rule) 100%);
+    margin: 30px 0 24px;
   }
 
-  /* ── Filter bar (lives inside hero) ────────────────── */
-  .gw-filter-shell {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-  .gw-filter-search {
-    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
-  }
-  .gw-search-wrap {
-    position: relative;
-    flex: 1 1 320px;
-    max-width: 420px;
-  }
+  /* ── Filter bar (inside hero) ──────────────────────────── */
+  .gw-filter-shell { display: flex; flex-direction: column; gap: 14px; }
+  .gw-filter-search { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .gw-search-wrap { position: relative; flex: 1 1 320px; max-width: 420px; }
   .gw-search-icon {
     position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-    font-family: var(--font-mono); font-size: 13px;
-    color: var(--hero-ink-soft);
-    pointer-events: none;
+    font-size: 14px; color: var(--hero-ink-soft); pointer-events: none;
   }
   .gw-search-input {
-    width: 100%;
-    padding: 10px 16px 10px 36px;
-    border: 1px solid var(--hero-chip-bord);
-    border-radius: 999px;
-    font-size: 13px;
-    font-family: inherit;
-    background: var(--hero-chip-bg);
-    color: var(--hero-ink);
-    outline: none;
-    transition: border-color 0.15s, background 0.15s;
+    width: 100%; padding: 10px 16px 10px 36px;
+    border: 1px solid var(--hero-chip-bord); border-radius: 999px;
+    font-size: 13px; font-family: inherit;
+    background: var(--hero-chip-bg); color: var(--hero-ink);
+    outline: none; transition: border-color 0.15s, box-shadow 0.15s;
   }
   .gw-search-input::placeholder { color: var(--hero-ink-soft); opacity: 0.7; }
   .gw-search-input:focus {
-    border-color: var(--gw-orange);
-    background: var(--hero-chip-bg);
-    box-shadow: 0 0 0 3px rgba(242,101,34,0.15);
+    border-color: var(--sf-blue-l);
+    box-shadow: 0 0 0 3px rgba(0,179,255,0.22);
   }
   .gw-shown-count {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--hero-ink-soft);
-    letter-spacing: 0.06em;
-    white-space: nowrap;
-    text-transform: uppercase;
+    font-size: 11px; font-weight: 600; color: var(--hero-ink-soft);
+    letter-spacing: 0.06em; white-space: nowrap; text-transform: uppercase;
   }
-  .gw-shown-count strong { color: var(--gw-orange); font-weight: 600; }
+  .gw-shown-count strong { color: var(--hero-accent); font-weight: 700; }
 
   .gw-filter-groups { display: flex; flex-direction: column; gap: 8px; }
-  .gw-filter-row {
-    display: grid;
-    grid-template-columns: 84px 1fr;
-    gap: 14px;
-    align-items: center;
-  }
+  .gw-filter-row { display: grid; grid-template-columns: 84px 1fr; gap: 14px; align-items: center; }
   .gw-filter-row > .label {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--hero-ink-soft);
-    font-weight: 500;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--hero-ink-soft);
   }
-  .gw-filter-row > .chips {
-    display: flex; gap: 6px; flex-wrap: wrap;
-  }
+  .gw-filter-row > .chips { display: flex; gap: 6px; flex-wrap: wrap; }
   .gw-chip-btn {
-    padding: 6px 12px;
-    border-radius: 999px;
+    padding: 6px 13px; border-radius: 999px;
     border: 1px solid var(--hero-chip-bord);
-    background: var(--hero-chip-bg);
-    color: var(--hero-ink);
-    opacity: 0.85;
-    font-size: 12.5px;
-    font-weight: 500;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.15s;
-    white-space: nowrap;
+    background: var(--hero-chip-bg); color: var(--hero-ink);
+    opacity: 0.9; font-size: 12.5px; font-weight: 600;
+    cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap;
   }
-  .gw-chip-btn:hover {
-    opacity: 1;
-    border-color: var(--gw-orange);
-  }
+  .gw-chip-btn:hover { opacity: 1; border-color: var(--sf-blue-l); }
   .gw-chip-btn.is-active {
-    background: var(--gw-orange);
-    color: #fff;
-    border-color: var(--gw-orange);
-    opacity: 1;
-    font-weight: 600;
+    background: #FFFFFF; color: var(--sf-navy);
+    border-color: #FFFFFF; opacity: 1; font-weight: 700;
   }
-  @media (max-width: 640px) {
-    .gw-filter-row { grid-template-columns: 1fr; gap: 6px; }
-  }
+  :root[data-hero="light"] .gw-chip-btn.is-active { background: var(--sf-blue); color: #fff; border-color: var(--sf-blue); }
+  @media (max-width: 640px) { .gw-filter-row { grid-template-columns: 1fr; gap: 6px; } }
 
-  /* ── List band ───────────────────────────────────────── */
+  /* ── List band (light, off-white) ──────────────────────── */
   .gw-list-band {
-    background: var(--gw-charcoal);
-    color: rgba(255,255,255,0.78);
-    padding: 36px 28px 64px;
+    background: var(--cloud-95);
+    color: var(--body);
+    padding: 40px 28px 64px;
   }
-  .gw-list-wrap {
-    max-width: 1280px;
-    margin: 0 auto;
-  }
+  .gw-list-wrap { max-width: 1280px; margin: 0 auto; }
   .gw-list-meta {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    margin-bottom: 18px;
-    gap: 16px;
-    flex-wrap: wrap;
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 18px; gap: 16px; flex-wrap: wrap;
   }
   .gw-eyebrow {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--gw-orange);
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    font-weight: 500;
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--sf-blue);
+    display: inline-flex; align-items: center; gap: 12px;
   }
   .gw-eyebrow::before {
-    content: "";
-    display: inline-block;
-    width: 28px;
-    height: 2px;
-    background: var(--gw-orange);
+    content: ""; display: inline-block; width: 28px; height: 2px; background: var(--sf-blue);
   }
   .gw-legend {
     display: flex; flex-wrap: wrap; gap: 14px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: rgba(255,255,255,0.72);
-    letter-spacing: 0.02em;
+    font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.02em;
   }
-  .gw-legend span {
-    display: inline-flex; align-items: center; gap: 6px;
-  }
-  .gw-legend .swatch {
-    width: 8px; height: 8px; border-radius: 2px;
-  }
+  .gw-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .gw-legend .swatch { width: 8px; height: 8px; border-radius: 2px; }
 
   .gw-list-card {
     background: var(--card);
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid var(--rule);
     border-radius: var(--radius-lg);
     overflow: hidden;
-    box-shadow: 0 1px 0 rgba(0,0,0,0.3), 0 30px 60px -30px rgba(0,0,0,0.5);
+    box-shadow: var(--shadow-card);
   }
 
-  /* ── Footer ────────────────────────────────────────── */
+  /* ── Footer (navy close) ───────────────────────────────── */
   .gw-foot {
-    background: var(--gw-charcoal);
+    background: var(--sf-navy);
     color: rgba(255,255,255,0.7);
     padding: 32px 28px;
-    margin-top: 0;
-    font-size: 12.5px;
-    letter-spacing: 0.02em;
-    border-top: 4px solid var(--gw-orange);
+    font-size: 12.5px; letter-spacing: 0.02em;
+    border-top: 3px solid var(--sf-blue-l);
   }
   .gw-foot-inner {
-    max-width: 1280px;
-    margin: 0 auto;
+    max-width: 1280px; margin: 0 auto;
     display: flex; justify-content: space-between; align-items: center;
     gap: 24px; flex-wrap: wrap;
   }
-  .gw-foot strong { color: #fff; font-family: var(--font-display); font-weight: 600; letter-spacing: -0.01em; }
+  .gw-foot strong { color: #fff; font-family: var(--font-display); font-weight: 600; letter-spacing: -0.005em; }
   .gw-foot .meta {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.5);
+    font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: rgba(255,255,255,0.5);
   }
 
-  /* ── Misc animations ─────────────────────────────── */
-  @keyframes gw-fade-up {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes gw-fade {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
+  @keyframes gw-fade-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes gw-fade { from { opacity: 0; } to { opacity: 1; } }
 </style>
 
 </head>
 <body>
 <noscript><div style="padding:48px;text-align:center;font-family:system-ui">This page requires JavaScript.</div></noscript>
 
-<header>
+<header class="gw-head">
   <nav class="gw-nav">
     <div class="gw-nav-inner">
-      <a href="#" class="gw-logo" aria-label="GoWide">
-        g<span class="o">o</span><span class="slash">/</span>wide
-      </a>
+      <span class="gw-logo" aria-label="Salesforce">
+        <svg class="cloud" viewBox="0 0 26 18" aria-hidden="true" fill="#ffffff">
+          <path d="M10.6 3.1a4.3 4.3 0 0 1 7.1 1 5 5 0 0 1 6.2 4.9 5 5 0 0 1-5 5c-.3 0-.6 0-.9-.1a3.7 3.7 0 0 1-6.7.4 4.2 4.2 0 0 1-1.7.4 4.3 4.3 0 0 1-.9-8.5 4.8 4.8 0 0 1 1.6-3.4 4.7 4.7 0 0 1-.0-.0Z"/>
+        </svg>
+        Salesforce
+      </span>
     </div>
   </nav>
 
@@ -526,15 +381,17 @@
     <div class="gw-hero-inner">
       <span class="gw-cobrand">
         <span class="dot"></span>
-        GoWide <span class="sep">·</span> Salesforce
+        Apromore <span class="sep">×</span> Salesforce <span class="sep">·</span> Process Intelligence
       </span>
 
       <div class="gw-hero-top">
         <div class="gw-hero-text">
-          <h1><span class="accent">The top 30 processes</span><br><span class="nowrap">for Process Intelligence pilots</span></h1>
+          <h1>The top 30 processes for<br><span class="accent nowrap">Process Intelligence pilots</span></h1>
           <p class="sub">A ranked list of the best pilot process options — what they are, where the data lives, what PI reveals, process owners, and how each ties back to Salesforce licensing.</p>
         </div>
       </div>
+
+      <div id="hero-kpis-root" class="gw-hero-kpis"></div>
 
       <div class="gw-hero-rule"></div>
 
@@ -560,9 +417,9 @@
 <footer class="gw-foot">
   <div class="gw-foot-inner">
     <div>
-      <strong>GoWide</strong> &nbsp;—&nbsp; Process Intelligence pilot programs
+      <strong>Salesforce</strong> &nbsp;—&nbsp; Process Intelligence pilot programs
     </div>
-    <div class="meta">© GoWide Solutions · v2</div>
+    <div class="meta">Apromore × Salesforce · Process Intelligence reference · v3</div>
   </div>
 </footer>
 

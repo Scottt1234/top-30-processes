@@ -7,7 +7,7 @@ const { useState, useEffect, useMemo, useRef } = React;
 // ── Section / family color palettes ─────────────────────────
 // Each palette: bg (95-tint), text (20-tint), border, accent
 const SHARED_SERVICE   = { bg: "var(--c-service-95)",   text: "var(--c-service-20)",   border: "rgba(31,138,122,0.20)",  accent: "var(--c-service)" };
-const SHARED_SALES     = { bg: "var(--c-sales-95)",     text: "var(--c-sales-20)",     border: "rgba(242,101,34,0.25)",  accent: "var(--c-sales)" };
+const SHARED_SALES     = { bg: "var(--c-sales-95)",     text: "var(--c-sales-20)",     border: "rgba(2,42,192,0.22)",    accent: "var(--c-sales)" };
 const SHARED_REVENUE   = { bg: "var(--c-revenue-95)",   text: "var(--c-revenue-20)",   border: "rgba(43,47,140,0.22)",   accent: "var(--c-revenue)" };
 const SHARED_MARKETING = { bg: "var(--c-marketing-95)", text: "var(--c-marketing-20)", border: "rgba(184,59,94,0.22)",   accent: "var(--c-marketing)" };
 const SHARED_AMBER     = { bg: "var(--c-engagement-95)", text: "var(--c-engagement-20)", border: "rgba(180,114,24,0.22)", accent: "var(--c-engagement)" };
@@ -371,11 +371,11 @@ function PIRevealsBlock({ p, accent }) {
         <span style={{
           position: "absolute", top: -10, right: 14,
           fontFamily: "var(--font-display)", fontSize: 110, lineHeight: 1,
-          color: "var(--gw-orange)", opacity: 0.22, fontWeight: 700,
+          color: "var(--sf-blue-l)", opacity: 0.30, fontWeight: 700,
         }}>“</span>
         <div style={{
-          fontFamily: "var(--font-mono)", fontSize: 10, fontWeight: 500,
-          color: "var(--gw-orange)", textTransform: "uppercase", letterSpacing: "0.16em",
+          fontFamily: "var(--font-mono)", fontSize: 10, fontWeight: 700,
+          color: "var(--sf-blue-l)", textTransform: "uppercase", letterSpacing: "0.16em",
           marginBottom: 8,
         }}>
           PI insight
@@ -539,16 +539,16 @@ function BuyersBlock({ p }) {
           color: "#fff",
           position: "relative",
           overflow: "hidden",
-          borderLeft: "3px solid var(--gw-orange)",
+          borderLeft: "3px solid var(--sf-blue-l)",
         }}>
           <div style={{
             position: "absolute", right: -10, top: -20, fontSize: 120,
-            fontFamily: "var(--font-display)", color: "rgba(242,101,34,0.08)",
+            fontFamily: "var(--font-display)", color: "rgba(0,179,255,0.10)",
             lineHeight: 1, fontWeight: 700, letterSpacing: "-0.04em",
           }}>SF</div>
           <div style={{
-            fontFamily: "var(--font-mono)", fontSize: 10, fontWeight: 500,
-            color: "var(--gw-orange)", textTransform: "uppercase", letterSpacing: "0.16em",
+            fontFamily: "var(--font-mono)", fontSize: 10, fontWeight: 700,
+            color: "var(--sf-blue-l)", textTransform: "uppercase", letterSpacing: "0.16em",
             marginBottom: 8, position: "relative",
           }}>Salesforce licence link</div>
           <div style={{ fontSize: 13.5, lineHeight: 1.6, color: "rgba(255,255,255,0.92)", position: "relative" }}>
