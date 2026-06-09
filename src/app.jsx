@@ -198,7 +198,7 @@ function FacetDropdown({ field, values, selected, onToggle, onClear }) {
           <input
             className="gw-dd-search"
             type="text"
-            placeholder={`Find a ${field.label.toLowerCase()}…`}
+            placeholder={`Type to filter ${field.label.toLowerCase()} values…`}
             value={q}
             onChange={e => setQ(e.target.value)}
             autoFocus

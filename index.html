@@ -160,12 +160,19 @@
   }
 
   /* ── Hero ──────────────────────────────────────────────── */
+  /* No overflow:hidden here — the filter dropdowns must be able to
+     spill past the hero's bottom edge. The oversized numeral is
+     clipped by its own .gw-hero-bg layer instead. */
   .gw-hero {
     background: transparent;
     color: var(--hero-ink);
     padding: 40px 28px 46px;
     position: relative;
+  }
+  .gw-hero-bg {
+    position: absolute; inset: 0;
     overflow: hidden;
+    pointer-events: none;
   }
   .gw-hero::before {
     content: "";
@@ -445,7 +452,7 @@
   </nav>
 
   <section class="gw-hero">
-    <div class="gw-numeral" aria-hidden="true">30</div>
+    <div class="gw-hero-bg" aria-hidden="true"><div class="gw-numeral">30</div></div>
     <div class="gw-hero-inner">
       <span class="gw-cobrand">
         <span class="dot"></span>
