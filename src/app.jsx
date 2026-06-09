@@ -1,8 +1,10 @@
 // ============================================================
-// GoWide — App: ranked list of 30 processes
+// GoWide — App: ranked process list with workbook-driven
+// search fields, filters and row chips (see data/processes.xlsx,
+// "Fields" sheet).
 // ============================================================
 
-const { useState: useS, useMemo: useM, useEffect: useE } = React;
+const { useState: useS, useMemo: useM, useEffect: useE, useRef: useR } = React;
 
 // ── Tweak defaults (persisted via __edit_mode_set_keys) ─────
 const APP_TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
@@ -20,8 +22,36 @@ const ACCENT_DEEP = {
   "#730394": "#481A54",   // Violet 30 → 20
 };
 
+const COMPLEXITY_ORDER = ["Simple", "Simple to Moderate", "Moderate", "Moderate to Complex", "Complex"];
+
+// ── localStorage helpers (filter layout prefs survive reloads) ──
+const loadPref = (key, fallback) => {
+  try {
+    const v = JSON.parse(localStorage.getItem(key));
+    return v == null ? fallback : v;
+  } catch (e) { return fallback; }
+};
+const savePref = (key, value) => {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+};
+
+// ── Field-aware chip (used on collapsed rows) ───────────────
+function FieldChip({ field, p }) {
+  const v = p._fields[field.key];
+  if (field.key === "Domain") return <DomainChip domain={p.domain} dot />;
+  if (field.key === "Complexity") return <ComplexityChip complexity={p.engagement.complexity} />;
+  const values = Array.isArray(v) ? v : (v ? [v] : []);
+  if (!values.length) return null;
+  return (
+    <>
+      {values.slice(0, 2).map(x => <Chip key={x} color={SHARED_GRAY}>{x}</Chip>)}
+      {values.length > 2 && <Chip color={SHARED_GRAY}>+{values.length - 2}</Chip>}
+    </>
+  );
+}
+
 // ── Row ──────────────────────────────────────────────────────
-function ProcessRow({ p, expandMode, density, defaultOpen }) {
+function ProcessRow({ p, expandMode, density, defaultOpen, chipFields }) {
   const [expanded, setExpanded] = useS(!!defaultOpen);
   const domainColor = DOMAIN_COLORS[p.domain] || SHARED_GRAY;
 
@@ -33,6 +63,8 @@ function ProcessRow({ p, expandMode, density, defaultOpen }) {
   if (expandMode === "spread") Expanded = ExpandedSpread;
   else if (expandMode === "story") Expanded = ExpandedStory;
   else if (expandMode === "tabs") Expanded = ExpandedTabs;
+
+  const visibleChips = density === "compact" ? chipFields.slice(0, 1) : chipFields;
 
   return (
     <div
@@ -103,8 +135,7 @@ function ProcessRow({ p, expandMode, density, defaultOpen }) {
           flexWrap: "wrap",
           justifyContent: "flex-end",
         }}>
-          <DomainChip domain={p.domain} dot />
-          {density !== "compact" && <ComplexityChip complexity={p.engagement.complexity} />}
+          {visibleChips.map(f => <FieldChip key={f.key} field={f} p={p} />)}
         </div>
 
         <span style={{
@@ -129,38 +160,198 @@ function ProcessRow({ p, expandMode, density, defaultOpen }) {
   );
 }
 
-// ── Owner bucketing ─────────────────────────────────────────
-const OWNER_BUCKETS = [
-  { id: "Sales",          re: /\b(sales|cro|revenue|rev[\s-]?ops|sales ops)\b/i },
-  { id: "Marketing",      re: /\b(cmo|marketing|brand|demand gen)\b/i },
-  { id: "Service / CX",   re: /\b(service|customer success|customer care|cco|cs|support)\b/i },
-  { id: "Finance",        re: /\b(cfo|finance|controller|treasur|ar |ap |collect)\b/i },
-  { id: "Operations",     re: /\b(coo|operations|supply chain|field|manufacturing|procurement|logist)\b/i },
-  { id: "IT / Data",      re: /\b(cio|cto|ciso|it ops|engineering|data|platform)\b/i },
-  { id: "HR / Legal",     re: /\b(hr|chro|people|legal|counsel|compliance|risk)\b/i },
-  { id: "Executive",      re: /\b(ceo|executive director|board|gm|managing director)\b/i },
-];
-const ownerBuckets = (p) => {
-  const text = [p.buyers.problemOwner, p.buyers.budgetOwner].join(" ");
-  const buckets = OWNER_BUCKETS.filter(b => b.re.test(text)).map(b => b.id);
-  return buckets.length ? buckets : ["Other"];
-};
+// ── Dropdown shell (click-outside aware) ────────────────────
+function useClickOutside(onAway) {
+  const ref = useR(null);
+  useE(() => {
+    const h = (e) => { if (ref.current && !ref.current.contains(e.target)) onAway(); };
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  }, [onAway]);
+  return ref;
+}
+
+// Multi-select dropdown for high-cardinality facets (e.g. Industry)
+function FacetDropdown({ field, values, selected, onToggle, onClear }) {
+  const [open, setOpen] = useS(false);
+  const [q, setQ] = useS("");
+  const ref = useClickOutside(() => setOpen(false));
+
+  const shown = q.trim()
+    ? values.filter(v => v.value.toLowerCase().includes(q.trim().toLowerCase()))
+    : values;
+
+  return (
+    <div className="gw-dd" ref={ref}>
+      <button
+        className={"gw-chip-btn gw-dd-btn" + (selected.length ? " is-active" : "")}
+        onClick={() => setOpen(o => !o)}
+        aria-expanded={open}
+      >
+        {selected.length
+          ? `${selected.length} selected`
+          : `Any ${field.label.toLowerCase()}`}
+        <span className="gw-dd-caret">▾</span>
+      </button>
+      {open && (
+        <div className="gw-dd-panel">
+          <input
+            className="gw-dd-search"
+            type="text"
+            placeholder={`Find a ${field.label.toLowerCase()}…`}
+            value={q}
+            onChange={e => setQ(e.target.value)}
+            autoFocus
+          />
+          <div className="gw-dd-list">
+            {shown.map(v => {
+              const on = selected.includes(v.value);
+              return (
+                <button
+                  key={v.value}
+                  className={"gw-dd-item" + (on ? " is-on" : "")}
+                  onClick={() => onToggle(v.value)}
+                >
+                  <span className="tick">{on ? "✓" : ""}</span>
+                  <span className="val">{v.value}</span>
+                  <span className="count">{v.count}</span>
+                </button>
+              );
+            })}
+            {!shown.length && <div className="gw-dd-empty">No matches</div>}
+          </div>
+          {selected.length > 0 && (
+            <button className="gw-dd-clear" onClick={onClear}>Clear {field.label.toLowerCase()}</button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// One facet row: chips when few values, dropdown when many
+function FacetRow({ field, values, selected, setSelected, onRemove }) {
+  const toggle = (v) => setSelected(
+    selected.includes(v) ? selected.filter(x => x !== v) : [...selected, v]
+  );
+
+  return (
+    <div className="gw-filter-row">
+      <span className="label">{field.label}</span>
+      <div className="chips">
+        {values.length <= 8 ? (
+          <>
+            <button
+              className={"gw-chip-btn" + (!selected.length ? " is-active" : "")}
+              onClick={() => setSelected([])}
+            >All</button>
+            {values.map(v => (
+              <button
+                key={v.value}
+                className={"gw-chip-btn" + (selected.includes(v.value) ? " is-active" : "")}
+                onClick={() => toggle(v.value)}
+              >{v.value}</button>
+            ))}
+          </>
+        ) : (
+          <FacetDropdown
+            field={field}
+            values={values}
+            selected={selected}
+            onToggle={toggle}
+            onClear={() => setSelected([])}
+          />
+        )}
+        <button className="gw-facet-remove" title={`Hide the ${field.label} filter`} onClick={onRemove}>✕</button>
+      </div>
+    </div>
+  );
+}
+
+// "+ Add filter" menu of optional / hidden facets
+function AddFilterMenu({ available, onAdd }) {
+  const [open, setOpen] = useS(false);
+  const ref = useClickOutside(() => setOpen(false));
+  if (!available.length) return null;
+  return (
+    <div className="gw-dd" ref={ref}>
+      <button className="gw-chip-btn gw-add-filter" onClick={() => setOpen(o => !o)} aria-expanded={open}>
+        + Add filter
+      </button>
+      {open && (
+        <div className="gw-dd-panel">
+          <div className="gw-dd-list">
+            {available.map(f => (
+              <button key={f.key} className="gw-dd-item" onClick={() => { onAdd(f.key); setOpen(false); }}>
+                <span className="val">{f.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// "Search in: …" field picker
+function SearchFieldPicker({ searchableFields, searchKeys, setSearchKeys }) {
+  const [open, setOpen] = useS(false);
+  const ref = useClickOutside(() => setOpen(false));
+  const all = !searchKeys;
+
+  const toggle = (key) => {
+    if (all) { setSearchKeys([key]); return; }
+    const next = searchKeys.includes(key)
+      ? searchKeys.filter(k => k !== key)
+      : [...searchKeys, key];
+    setSearchKeys(next.length ? next : null);
+  };
+
+  const label = all
+    ? "All fields"
+    : searchKeys.length === 1
+      ? (searchableFields.find(f => f.key === searchKeys[0]) || { label: searchKeys[0] }).label
+      : `${searchKeys.length} fields`;
+
+  return (
+    <div className="gw-dd" ref={ref}>
+      <button className="gw-search-in" onClick={() => setOpen(o => !o)} aria-expanded={open}>
+        in: <strong>{label}</strong> <span className="gw-dd-caret">▾</span>
+      </button>
+      {open && (
+        <div className="gw-dd-panel gw-dd-right">
+          <div className="gw-dd-list">
+            <button className={"gw-dd-item" + (all ? " is-on" : "")} onClick={() => { setSearchKeys(null); setOpen(false); }}>
+              <span className="tick">{all ? "✓" : ""}</span>
+              <span className="val">All fields (incl. systems &amp; metrics)</span>
+            </button>
+            {searchableFields.map(f => {
+              const on = !all && searchKeys.includes(f.key);
+              return (
+                <button key={f.key} className={"gw-dd-item" + (on ? " is-on" : "")} onClick={() => toggle(f.key)}>
+                  <span className="tick">{on ? "✓" : ""}</span>
+                  <span className="val">{f.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ── Filter bar (lives in hero) ──────────────────────────────
-function FilterBar({ filters, setFilters, totalShown, total }) {
-  const cloudOpts = ["All", "Service / Field", "Sales", "Revenue / Finance", "Marketing / Commerce", "Data / Agentforce", "Other"];
-  const complexityOpts = ["All", "Simple", "Moderate", "Complex"];
-  const ownerOpts = ["All", ...OWNER_BUCKETS.map(b => b.id), "Other"];
+function FilterBar({
+  filters, setFilters, totalShown, total,
+  fieldConfig, facetValues, activeFacets, setActiveFacets,
+}) {
+  const searchableFields = fieldConfig.filter(f => f.searchable);
+  const filterableFields = fieldConfig.filter(f => f.filter !== "no");
+  const availableToAdd = filterableFields.filter(f => !activeFacets.includes(f.key));
 
-  const btn = (label, active, onClick) => (
-    <button
-      key={label}
-      onClick={onClick}
-      className={"gw-chip-btn" + (active ? " is-active" : "")}
-    >
-      {label}
-    </button>
-  );
+  const setFacet = (key, sel) => setFilters(f => ({ ...f, facets: { ...f.facets, [key]: sel } }));
+  const anyActive = filters.query.trim() || Object.values(filters.facets).some(s => s && s.length);
 
   return (
     <div className="gw-filter-shell">
@@ -170,33 +361,52 @@ function FilterBar({ filters, setFilters, totalShown, total }) {
           <input
             className="gw-search-input"
             type="text"
-            placeholder="Search 30 processes…"
+            placeholder={`Search ${total} processes…`}
             value={filters.query}
             onChange={(e) => setFilters(f => ({ ...f, query: e.target.value }))}
           />
         </div>
+        <SearchFieldPicker
+          searchableFields={searchableFields}
+          searchKeys={filters.searchKeys}
+          setSearchKeys={(keys) => { savePref("gw-search-keys", keys); setFilters(f => ({ ...f, searchKeys: keys })); }}
+        />
         <div className="gw-shown-count">
           <strong>{totalShown}</strong>/{total} shown
         </div>
+        {anyActive && (
+          <button
+            className="gw-clear-all"
+            onClick={() => setFilters(f => ({ ...f, query: "", facets: {} }))}
+          >Clear all</button>
+        )}
       </div>
 
       <div className="gw-filter-groups">
+        {activeFacets.map(key => {
+          const field = fieldConfig.find(f => f.key === key);
+          if (!field) return null;
+          return (
+            <FacetRow
+              key={key}
+              field={field}
+              values={facetValues[key] || []}
+              selected={filters.facets[key] || []}
+              setSelected={(sel) => setFacet(key, sel)}
+              onRemove={() => {
+                setFacet(key, []);
+                setActiveFacets(activeFacets.filter(k => k !== key));
+              }}
+            />
+          );
+        })}
         <div className="gw-filter-row">
-          <span className="label">Family</span>
+          <span className="label"></span>
           <div className="chips">
-            {cloudOpts.map(o => btn(o, filters.cloud === o, () => setFilters(f => ({ ...f, cloud: o }))))}
-          </div>
-        </div>
-        <div className="gw-filter-row">
-          <span className="label">Owner</span>
-          <div className="chips">
-            {ownerOpts.map(o => btn(o, filters.owner === o, () => setFilters(f => ({ ...f, owner: o }))))}
-          </div>
-        </div>
-        <div className="gw-filter-row">
-          <span className="label">Complexity</span>
-          <div className="chips">
-            {complexityOpts.map(o => btn(o, filters.complexity === o, () => setFilters(f => ({ ...f, complexity: o }))))}
+            <AddFilterMenu
+              available={availableToAdd}
+              onAdd={(key) => setActiveFacets([...activeFacets, key])}
+            />
           </div>
         </div>
       </div>
@@ -207,13 +417,26 @@ function FilterBar({ filters, setFilters, totalShown, total }) {
 // ── App ─────────────────────────────────────────────────────
 function App() {
   const [t, setTweak] = useTweaks(APP_TWEAK_DEFAULTS);
+  const fieldConfig = window.fieldConfig || [];
+  const processes = window.processes || [];
 
-  const [filters, setFilters] = useS({
-    query: "",
-    cloud: "All",
-    owner: "All",
-    complexity: "All",
+  const defaultFacets = useM(
+    () => fieldConfig.filter(f => f.filter === "default").map(f => f.key),
+    []
+  );
+  const [activeFacets, setActiveFacetsRaw] = useS(() => {
+    const stored = loadPref("gw-active-facets", null);
+    if (!stored) return defaultFacets;
+    const valid = stored.filter(k => fieldConfig.some(f => f.key === k && f.filter !== "no"));
+    return valid.length ? valid : defaultFacets;
   });
+  const setActiveFacets = (keys) => { savePref("gw-active-facets", keys); setActiveFacetsRaw(keys); };
+
+  const [filters, setFilters] = useS(() => ({
+    query: "",
+    searchKeys: loadPref("gw-search-keys", null),  // null = all searchable fields
+    facets: {},                                     // key → [selected values]
+  }));
 
   // Apply hero theme + accent color globally via :root attributes / CSS vars
   useE(() => {
@@ -229,50 +452,64 @@ function App() {
     document.documentElement.style.setProperty("--c-sales", accent);
   }, [t.accent]);
 
-  const cloudFamily = (domain) => {
-    if (!domain) return "Other";
-    if (domain.includes("Service") || domain.includes("Field")) return "Service / Field";
-    if (domain.includes("Sales")) return "Sales";
-    if (domain.includes("Revenue") || domain.includes("Finance") || domain.includes("ERP")) return "Revenue / Finance";
-    if (domain.includes("Marketing") || domain.includes("Commerce")) return "Marketing / Commerce";
-    if (domain.includes("Data") || domain.includes("Agentforce")) return "Data / Agentforce";
-    return "Other";
-  };
-
-  const complexityBucket = (c) => {
-    if (!c) return "Moderate";
-    if (c.includes("Simple")) return "Simple";
-    if (c === "Complex") return "Complex";
-    return "Moderate";
-  };
+  // Distinct values + counts per filterable field, derived from the data
+  const facetValues = useM(() => {
+    const out = {};
+    fieldConfig.filter(f => f.filter !== "no").forEach(f => {
+      const counts = new Map();
+      processes.forEach(p => {
+        const v = p._fields[f.key];
+        (Array.isArray(v) ? v : (v ? [v] : [])).forEach(x => counts.set(x, (counts.get(x) || 0) + 1));
+      });
+      let vals = [...counts.entries()].map(([value, count]) => ({ value, count }));
+      if (f.key === "Complexity") {
+        vals.sort((a, b) => COMPLEXITY_ORDER.indexOf(a.value) - COMPLEXITY_ORDER.indexOf(b.value));
+      } else if (vals.length <= 8) {
+        vals.sort((a, b) => b.count - a.count || a.value.localeCompare(b.value));
+      } else {
+        vals.sort((a, b) => a.value.localeCompare(b.value));
+      }
+      out[f.key] = vals;
+    });
+    return out;
+  }, [fieldConfig, processes]);
 
   const filtered = useM(() => {
     const q = filters.query.trim().toLowerCase();
-    return window.processes.filter(p => {
-      if (filters.cloud !== "All" && cloudFamily(p.domain) !== filters.cloud) return false;
-      if (filters.complexity !== "All" && complexityBucket(p.engagement.complexity) !== filters.complexity) return false;
-      if (filters.owner !== "All" && !ownerBuckets(p).includes(filters.owner)) return false;
+    return processes.filter(p => {
+      for (const [key, sel] of Object.entries(filters.facets)) {
+        if (!sel || !sel.length) continue;
+        const v = p._fields[key];
+        const values = Array.isArray(v) ? v : (v ? [v] : []);
+        if (!values.some(x => sel.includes(x))) return false;
+      }
       if (q) {
-        const haystack = [
-          p.name, p.domain, p.buyers.problemOwner, p.buyers.budgetOwner,
-          p.process.description,
-          ...(p.buyerPersonas || []),
-          ...(p.headlineMetrics || []),
-          ...(p.primarySystems || []),
-        ].join(" ").toLowerCase();
-        if (!haystack.includes(q)) return false;
+        if (!filters.searchKeys) {
+          if (!p._searchAll.includes(q)) return false;
+        } else {
+          const hay = filters.searchKeys
+            .map(k => { const v = p._fields[k]; return Array.isArray(v) ? v.join(" ") : (v || ""); })
+            .join(" ").toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
       }
       return true;
     });
-  }, [filters]);
+  }, [filters, processes]);
 
-  // Hero KPIs
+  const chipFields = useM(() => fieldConfig.filter(f => f.chip), [fieldConfig]);
+
+  // Hero KPIs + dynamic counts in the static hero markup
   useE(() => {
     const el = document.getElementById("hero-kpis-root");
     if (el) {
       window.__heroKpisRoot = window.__heroKpisRoot || ReactDOM.createRoot(el);
-      window.__heroKpisRoot.render(<HeroKpis processes={window.processes} />);
+      window.__heroKpisRoot.render(<HeroKpis processes={processes} />);
     }
+    const numeral = document.querySelector(".gw-numeral");
+    if (numeral) numeral.textContent = processes.length;
+    const count = document.getElementById("hero-count");
+    if (count) count.textContent = processes.length;
   }, []);
 
   // Legend
@@ -294,11 +531,21 @@ function App() {
           filters={filters}
           setFilters={setFilters}
           totalShown={filtered.length}
-          total={window.processes.length}
+          total={processes.length}
+          fieldConfig={fieldConfig}
+          facetValues={facetValues}
+          activeFacets={activeFacets}
+          setActiveFacets={setActiveFacets}
         />
       );
     }
-  }, [filters, filtered.length]);
+  }, [filters, filtered.length, activeFacets, facetValues]);
+
+  const resetAll = () => {
+    setFilters(f => ({ ...f, query: "", facets: {}, searchKeys: null }));
+    setActiveFacets(defaultFacets);
+    savePref("gw-search-keys", null);
+  };
 
   return (
     <>
@@ -312,7 +559,7 @@ function App() {
           No processes match your filters.
           <div style={{ marginTop: 12 }}>
             <button
-              onClick={() => setFilters({ query: "", cloud: "All", owner: "All", complexity: "All" })}
+              onClick={() => setFilters(f => ({ ...f, query: "", facets: {} }))}
               style={{
                 padding: "8px 18px",
                 borderRadius: 999,
@@ -333,6 +580,7 @@ function App() {
             p={p}
             expandMode={t.expandMode}
             density={t.density}
+            chipFields={chipFields}
           />
         ))
       )}
@@ -384,7 +632,7 @@ function App() {
         <TweakSection label="Reset">
           <TweakButton onClick={() => {
             setTweak(APP_TWEAK_DEFAULTS);
-            setFilters({ query: "", cloud: "All", owner: "All", complexity: "All" });
+            resetAll();
           }}>Reset to defaults</TweakButton>
         </TweakSection>
       </TweaksPanel>
@@ -396,12 +644,8 @@ function App() {
 (function() {
   const root = document.documentElement;
   if (!root.hasAttribute("data-hero")) {
-    // Try to parse the tweak defaults from the source file marker — fallback "dark"
     root.setAttribute("data-hero", "dark");
   }
 })();
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
-
-// Color tweak helper — the tweaks panel may not export TweakColor;
-// rely on the panel's standard exports.

@@ -560,6 +560,67 @@ function BuyersBlock({ p }) {
   );
 }
 
+// ============== Generic blocks for workbook-added content ==============
+
+// Renders Processes-sheet columns the bespoke layout doesn't know about
+// (declared on the workbook's Fields sheet).
+function ExtraFieldsBlock({ p }) {
+  return (
+    <div style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+      gap: 10,
+    }}>
+      {p._extraFields.map(f => (
+        <div key={f.key} style={{
+          padding: "12px 14px", background: "#fff",
+          border: "1px solid var(--rule)", borderRadius: 8,
+        }}>
+          <div style={{
+            fontFamily: "var(--font-mono)", fontSize: 9, fontWeight: 600,
+            color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.14em",
+            marginBottom: 6,
+          }}>{f.label}</div>
+          <div style={{ fontSize: 13.5, color: "var(--body)", lineHeight: 1.55 }}>
+            {Array.isArray(f.value) ? f.value.join(", ") : f.value}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Renders rows from workbook sheets the bespoke layout doesn't know about
+// (any sheet with a "Process ID" column).
+function GenericSectionBlock({ rows }) {
+  return (
+    <div style={{ display: "grid", gap: 8 }}>
+      {rows.map((r, i) => (
+        <div key={i} style={{
+          display: "grid", gridTemplateColumns: "auto 1fr", gap: 12,
+          padding: "10px 14px", background: "#fff",
+          border: "1px solid var(--rule)", borderRadius: 8,
+          alignItems: "baseline",
+        }}>
+          <span style={{
+            fontFamily: "var(--font-mono)", fontWeight: 600, fontSize: 11,
+            color: "var(--gw-orange)", fontFeatureSettings: "'tnum'", letterSpacing: 0,
+          }}>{String(i + 1).padStart(2, "0")}</span>
+          <div>
+            <div style={{ fontSize: 13.5, fontWeight: 600, color: "var(--ink)" }}>{r.title}</div>
+            {r.body && <div style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6, marginTop: 2 }}>{r.body}</div>}
+            {r.meta && r.meta.length > 0 && (
+              <div style={{ fontSize: 11.5, color: "var(--muted)", marginTop: 4, fontFamily: "var(--font-mono)" }}>
+                {r.meta.join(" · ")}
+              </div>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ============== Section catalog ==============
 
 const SECTIONS = [
@@ -571,6 +632,30 @@ const SECTIONS = [
   { id: "buyers",     label: "Who buys & how to pitch", short: "Buyers",     accent: SECTION_ACCENTS.buyers,     num: 6, render: (p) => <BuyersBlock p={p} /> },
 ];
 
+// Per-process section list: the fixed catalog plus any sections that exist
+// only in the workbook (extra Fields columns, extra sheets). This is what
+// lets the workbook grow without code changes.
+function sectionsFor(p) {
+  const extras = [];
+  if (p._extraFields && p._extraFields.length) {
+    extras.push({
+      id: "_extraFields", label: "More details", short: "More",
+      accent: "#6B6B70", render: (proc) => <ExtraFieldsBlock p={proc} />,
+    });
+  }
+  (p._extraSections || []).forEach(sec => {
+    extras.push({
+      id: "_sheet_" + sec.id, label: sec.label, short: sec.label,
+      accent: SECTION_ACCENTS.engagement,
+      render: () => <GenericSectionBlock rows={sec.rows} />,
+    });
+  });
+  return [
+    ...SECTIONS,
+    ...extras.map((s, i) => ({ ...s, num: SECTIONS.length + i + 1 })),
+  ];
+}
+
 // Export to window so other Babel scripts can access
 Object.assign(window, {
   SHARED_SERVICE, SHARED_SALES, SHARED_REVENUE, SHARED_MARKETING, SHARED_AMBER, SHARED_GRAY,
@@ -578,5 +663,6 @@ Object.assign(window, {
   Chip, DomainChip, ComplexityChip, MonoChip,
   Eyebrow, HeroKpis, LegendInline,
   FlowBlock, SystemsBlock, MetricsBlock, PIRevealsBlock, EngagementBlock, BuyersBlock,
-  StatTile, SECTIONS,
+  ExtraFieldsBlock, GenericSectionBlock,
+  StatTile, SECTIONS, sectionsFor,
 });
