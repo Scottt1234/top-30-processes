@@ -4,11 +4,29 @@
 
 const { useState: useStateExp } = React;
 
+// Workbook-added sections (extra Fields columns / extra sheets) appended
+// after the fixed catalog in the Spread and Story layouts.
+function ExpandedExtras({ p }) {
+  const extras = sectionsFor(p).slice(SECTIONS.length);
+  if (!extras.length) return null;
+  return (
+    <>
+      {extras.map(s => (
+        <div key={s.id} style={{ marginTop: 28 }}>
+          <Eyebrow color={s.accent} num={s.num}>{s.label}</Eyebrow>
+          <div style={{ marginTop: 14 }}>{s.render(p)}</div>
+        </div>
+      ))}
+    </>
+  );
+}
+
 // ────────────────────────────────────────────────────────────
 // SECTIONS — collapsible accordion (default).
 // ────────────────────────────────────────────────────────────
 function ExpandedSections({ p }) {
   const [open, setOpen] = useStateExp({});
+  const sections = sectionsFor(p);
 
   const tintFor = (accent, isOpen) => {
     if (isOpen) return `linear-gradient(135deg, color-mix(in srgb, ${accent} 6%, #fff) 0%, #fff 65%)`;
@@ -23,7 +41,7 @@ function ExpandedSections({ p }) {
       animation: "gw-fade-up 0.32s ease both",
     }}>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {SECTIONS.map((s) => {
+        {sections.map((s) => {
           const isOpen = !!open[s.id];
           return (
             <div key={s.id} style={{
@@ -244,6 +262,8 @@ function ExpandedSpread({ p }) {
         <Eyebrow color={SECTION_ACCENTS.buyers} num={6}>Who buys & how to pitch</Eyebrow>
         <div style={{ marginTop: 14 }}><BuyersBlock p={p} /></div>
       </div>
+
+      <ExpandedExtras p={p} />
     </div>
   );
 }
@@ -347,6 +367,8 @@ function ExpandedStory({ p }) {
           <Eyebrow color={SECTION_ACCENTS.buyers} num={6}>Who buys & how to pitch</Eyebrow>
           <div style={{ marginTop: 14 }}><BuyersBlock p={p} /></div>
         </div>
+
+        <ExpandedExtras p={p} />
       </div>
     </div>
   );
@@ -356,8 +378,9 @@ function ExpandedStory({ p }) {
 // TABS — dossier with one section at a time
 // ────────────────────────────────────────────────────────────
 function ExpandedTabs({ p }) {
-  const [active, setActive] = useStateExp(SECTIONS[0].id);
-  const section = SECTIONS.find(s => s.id === active) || SECTIONS[0];
+  const sections = sectionsFor(p);
+  const [active, setActive] = useStateExp(sections[0].id);
+  const section = sections.find(s => s.id === active) || sections[0];
 
   return (
     <div style={{
@@ -372,7 +395,7 @@ function ExpandedTabs({ p }) {
         background: "#fff",
         overflowX: "auto",
       }}>
-        {SECTIONS.map(s => {
+        {sections.map(s => {
           const isActive = s.id === active;
           return (
             <button
